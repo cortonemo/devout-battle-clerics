@@ -1,3 +1,4 @@
+
 <form class="flexcol {{cssClass}}" autocomplete="off">
 
   <!-- Sheet Header -->
@@ -5,63 +6,86 @@
     <img class="profile-img" src="{{data.img}}" data-edit="img" title="{{data.name}}" height="100" width="100" />
     <div class="header-fields">
       <h1 class="charname">
-        <input name="name" type="text" value="{{data.name}}" placeholder="Nome da Personagem" />
+        <input name="name" type="text" value="{{data.name}}" placeholder="Character Name" />
       </h1>
 
-      <!-- Stats -->
+      <!-- Core Stats -->
       <div class="resource">
-        <label>🎇 Divine</label>
-        <input type="text" name="system.divine" value="{{systemData.divine}}" placeholder="Ex: 2d6"/>
-        <button type="button" class="roll-stat" data-stat="divine">🎲</button>
+        <label><i class="fas fa-star-of-life"></i> Divine</label>
+        <input type="text" name="system.divine" value="{{systemData.divine}}" placeholder="e.g., 2d6"/>
+        <button type="button" class="roll-stat" data-stat="divine"><i class="fas fa-dice"></i></button>
       </div>
 
       <div class="resource">
-        <label>🎭 Performance</label>
-        <input type="text" name="system.performance" value="{{systemData.performance}}" placeholder="Ex: 1d6"/>
-        <button type="button" class="roll-stat" data-stat="performance">🎲</button>
+        <label><i class="fas fa-music"></i> Performance</label>
+        <input type="text" name="system.performance" value="{{systemData.performance}}" placeholder="e.g., 1d6"/>
+        <button type="button" class="roll-stat" data-stat="performance"><i class="fas fa-dice"></i></button>
       </div>
 
       <div class="resource">
-        <label>🔥 Rebellion</label>
-        <input type="text" name="system.rebellion" value="{{systemData.rebellion}}" placeholder="Ex: 1d4"/>
-        <button type="button" class="roll-stat" data-stat="rebellion">🎲</button>
+        <label><i class="fas fa-bolt"></i> Rebellion</label>
+        <input type="text" name="system.rebellion" value="{{systemData.rebellion}}" placeholder="e.g., 1d4"/>
+        <button type="button" class="roll-stat" data-stat="rebellion"><i class="fas fa-dice"></i></button>
       </div>
     </div>
   </header>
 
   <!-- Sheet Tabs -->
   <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item" data-tab="description">Descrição</a>
+    <a class="item" data-tab="description">Description</a>
+    <a class="item" data-tab="items">Items</a>
   </nav>
 
   <!-- Sheet Body -->
   <section class="sheet-body">
 
-    <!-- Descrição -->
+    <!-- Description Tab -->
     <div class="tab description" data-group="primary" data-tab="description">
       <div class="resource">
-        <label>🎸 Instrument of Faith</label>
-        <input type="text" name="system.instrument" value="{{systemData.instrument}}" placeholder="Ex: Guitarra com runas"/>
+        <label><i class="fas fa-guitar"></i> Instrument of Faith</label>
+        <input type="text" name="system.instrument" value="{{systemData.instrument}}" placeholder="e.g., Rune Guitar"/>
       </div>
 
       <div class="resource">
-        <label>💫 Divine Style</label>
-        <input type="text" name="system.style" value="{{systemData.style}}" placeholder="Ex: Cathedral Funk"/>
+        <label><i class="fas fa-dove"></i> Divine Style</label>
+        <input type="text" name="system.style" value="{{systemData.style}}" placeholder="e.g., Cathedral Funk"/>
       </div>
 
       <div class="resource">
-        <label>⚡ Signature Move</label>
-        <input type="text" name="system.signature" value="{{systemData.signature}}" placeholder="Ex: Sonic Halo"/>
+        <label><i class="fas fa-bahai"></i> Signature Move</label>
+        <input type="text" name="system.signature" value="{{systemData.signature}}" placeholder="e.g., Sonic Halo"/>
       </div>
 
       <div class="resource">
-        <label>🎤 Band Power</label>
-        <input type="text" name="system.bandPower" value="{{systemData.bandPower}}" placeholder="Ex: Smite Solo"/>
+        <label><i class="fas fa-microphone-alt"></i> Band Power</label>
+        <input type="text" name="system.bandPower" value="{{systemData.bandPower}}" placeholder="e.g., Smite Solo"/>
       </div>
 
       <hr/>
 
       {{editor biographyHTML target="system.biography" button=true editable=editable engine="prosemirror"}}
+    </div>
+
+    <!-- Items Tab -->
+    <div class="tab items" data-group="primary" data-tab="items">
+      <h2>Items & Artifacts</h2>
+      <ol class="item-list">
+        {{#each actor.items}}
+          <li class="item flexrow" data-item-id="{{this._id}}">
+            <div class="item-name">
+              <img src="{{this.img}}" title="{{this.name}}" width="24" height="24"/>
+              <h4>{{this.name}}</h4>
+            </div>
+            <div class="item-controls">
+              <a class="item-control" data-action="edit" title="Edit"><i class="fas fa-edit"></i></a>
+              <a class="item-control" data-action="delete" title="Delete"><i class="fas fa-trash"></i></a>
+            </div>
+          </li>
+        {{/each}}
+      </ol>
+      <footer class="sheet-footer flexrow">
+        <button type="button" class="item-control" data-action="create"><i class="fas fa-plus"></i> Add Item</button>
+      </footer>
     </div>
 
   </section>
