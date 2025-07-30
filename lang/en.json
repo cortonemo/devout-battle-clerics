@@ -1,39 +1,42 @@
 {
-  "SETTINGS.SimpleMacroShorthandN": "Shortened Macro Syntax",
-  "SETTINGS.SimpleMacroShorthandL": "Enable a shortened macro syntax which allows referencing attributes directly, for example @str instead of @attributes.str.value. Disable this setting if you need the ability to reference the full attribute model, for example @attributes.str.label.",
-  "SETTINGS.SimpleInitFormulaN": "Initiative Formula",
-  "SETTINGS.SimpleInitFormulaL": "Enter an initiative formula, such as d20+@dex",
-
-  "SIMPLE.ItemCreate": "Create Item",
-  "SIMPLE.ItemEdit": "Edit Item",
-  "SIMPLE.ItemDelete": "Delete Item",
-  "SIMPLE.ItemNew": "New Item",
-
-  "SIMPLE.NotifyInitFormulaUpdated": "Initiative formula was updated to",
-  "SIMPLE.NotifyInitFormulaInvalid": "Initiative formula was invalid",
-  "SIMPLE.NotifyGroupDuplicate": "Attribute group already exists.",
-  "SIMPLE.NotifyGroupAttrDuplicate": "Attribute group already exists as an attribute.",
-  "SIMPLE.NotifyGroupAlphanumeric": "Attribute group names may not contain spaces or periods.",
-  "SIMPLE.NotifyGroupReserved": "Attribute group \"{key}\" is reserved and cannot be used.",
-  "SIMPLE.NotifyAttrDuplicate": "Attribute key already exists as a group.",
-  "SIMPLE.NotifyAttrInvalid": "Attribute keys may not contain spaces or periods.",
-
+  "SETTINGS.SimpleMacroShorthandN": "Clerical Macro Shortcut",
+  "SETTINGS.SimpleMacroShorthandL": "Enable shorthand macro syntax to invoke character traits directly, such as @faith instead of @attributes.faith.value. Disable for full model references.",
+  
+  "SETTINGS.SimpleInitFormulaN": "Initiative Prayer Formula",
+  "SETTINGS.SimpleInitFormulaL": "Set the divine initiative formula used in combat. Example: d20+@zeal",
+  
+  "SIMPLE.ItemCreate": "Sanctify New Relic",
+  "SIMPLE.ItemEdit": "Amend Relic",
+  "SIMPLE.ItemDelete": "Purge Relic",
+  "SIMPLE.ItemNew": "Consecrate Relic",
+  
+  "SIMPLE.NotifyInitFormulaUpdated": "Prayer formula for initiative updated to",
+  "SIMPLE.NotifyInitFormulaInvalid": "Invalid prayer formula — divine error detected",
+  
+  "SIMPLE.NotifyGroupDuplicate": "This ritual grouping already exists.",
+  "SIMPLE.NotifyGroupAttrDuplicate": "Conflict: grouping name already used as an attribute.",
+  "SIMPLE.NotifyGroupAlphanumeric": "Ritual group names must avoid spaces and dots.",
+  "SIMPLE.NotifyGroupReserved": "The ritual group name \"{key}\" is sacred and cannot be repurposed.",
+  
+  "SIMPLE.NotifyAttrDuplicate": "This trait is already defined under another group.",
+  "SIMPLE.NotifyAttrInvalid": "Attribute names must avoid spaces and dots — sacred formatting applies.",
+  
   "SIMPLE.ResourceMin": "Min",
-  "SIMPLE.ResourceValue": "Value",
+  "SIMPLE.ResourceValue": "Current",
   "SIMPLE.ResourceMax": "Max",
-
-  "SIMPLE.DefineTemplate": "Define as Template",
-  "SIMPLE.UnsetTemplate": "Unset Template",
-  "SIMPLE.NoTemplate": "No Template",
-
-  "SIMPLE.AttributeKey": "Attribute Key",
-  "SIMPLE.AttributeValue": "Value",
-  "SIMPLE.AttributeLabel": "Label",
-  "SIMPLE.AttributeDtype": "Data Type",
-
-  "SIMPLE.DeleteGroup": "Delete group?",
-  "SIMPLE.DeleteGroupContent": "Do you wish to delete this group? This will delete the following group and all attributes included in it: ",
-
-  "SIMPLE.Create": "Create",
-  "SIMPLE.New": "New"
+  
+  "SIMPLE.DefineTemplate": "Mark as Sacred Template",
+  "SIMPLE.UnsetTemplate": "Unmark Template",
+  "SIMPLE.NoTemplate": "None Sanctified",
+  
+  "SIMPLE.AttributeKey": "Clerical Trait",
+  "SIMPLE.AttributeValue": "Current Blessing",
+  "SIMPLE.AttributeLabel": "Trait Name",
+  "SIMPLE.AttributeDtype": "Ritual Type",
+  
+  "SIMPLE.DeleteGroup": "Disband Ritual Group?",
+  "SIMPLE.DeleteGroupContent": "Do you wish to dissolve this group? It includes the following rituals and attributes:",
+  
+  "SIMPLE.Create": "Consecrate",
+  "SIMPLE.New": "New Blessing"
 }
