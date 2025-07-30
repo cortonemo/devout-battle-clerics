@@ -15,15 +15,18 @@
   "socket": false,
   "license": "MIT",
   "url": "https://github.com/cortonemo/devout-battle-clerics",
-  "manifest": "system.json",
+  "manifest": "https://raw.githubusercontent.com/cortonemo/devout-battle-clerics/main/system.json",
+  "download": "https://github.com/cortonemo/devout-battle-clerics/archive/refs/heads/main.zip",
   "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
     {
       "lang": "pt-PT",
       "name": "Português (Portugal)",
       "path": "lang/pt-PT.json"
     }
   ]
-  "manifest": "https://raw.githubusercontent.com/cortonemo/devout-battle-clerics/main/system.json",
-  "download": "https://github.com/cortonemo/devout-battle-clerics/archive/refs/heads/main.zip",
-  "url": "https://github.com/cortonemo/devout-battle-clerics"
 }
