@@ -11,17 +11,16 @@
   },
   "scripts": [],
   "esmodules": [],
-  "languages": [],
   "packs": [],
   "socket": false,
   "license": "MIT",
   "url": "https://github.com/cortonemo/devout-battle-clerics",
-  "manifest": "system.json"
+  "manifest": "system.json",
   "languages": [
-	  {
-		"lang": "pt-PT",
-		"name": "Português (Portugal)",
-		"path": "lang/pt-PT.json"
-	  }
-	]
+    {
+      "lang": "pt-PT",
+      "name": "Português (Portugal)",
+      "path": "lang/pt-PT.json"
+    }
+  ]
 }
