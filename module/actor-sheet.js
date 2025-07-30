@@ -1,121 +1,263 @@
 import { EntitySheetHelper } from "./helper.js";
-import {ATTRIBUTE_TYPES} from "./constants.js";
 
 /**
- * Extend the basic ActorSheet with some very simple modifications
- * @extends {ActorSheet}
+ * Extend the base Actor document to support attributes and groups with a custom template creation dialog.
+ * @extends {Actor}
  */
-export class SimpleActorSheet extends ActorSheet {
+export class SimpleActor extends Actor {
 
   /** @inheritdoc */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["worldbuilding", "sheet", "actor"],
-      template: "systems/worldbuilding/templates/actor-sheet.html",
-      width: 600,
-      height: 600,
-      tabs: [{navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description"}],
-      scrollY: [".biography", ".items", ".attributes"],
-      dragDrop: [{dragSelector: ".item-list .item", dropSelector: null}]
-    });
+  prepareDerivedData() {
+    super.prepareDerivedData();
+    this.system.groups = this.system.groups || {};
+    this.system.attributes = this.system.attributes || {};
+    EntitySheetHelper.clampResourceValues(this.system.attributes);
   }
 
   /* -------------------------------------------- */
 
-  /** @inheritdoc */
-  async getData(options) {
-    const context = await super.getData(options);
-    EntitySheetHelper.getAttributeData(context.data);
-    context.shorthand = !!game.settings.get("worldbuilding", "macroShorthand");
-    context.systemData = context.data.system;
-    context.dtypes = ATTRIBUTE_TYPES;
-    context.biographyHTML = await TextEditor.enrichHTML(context.systemData.biography, {
-      secrets: this.document.isOwner,
-      async: true
-    });
-    return context;
-  }
-
-  /* -------------------------------------------- */
-
-  /** @inheritdoc */
-  activateListeners(html) {
-    super.activateListeners(html);
-
-    // Everything below here is only needed if the sheet is editable
-    if ( !this.isEditable ) return;
-
-    // Attribute Management
-    html.find(".attributes").on("click", ".attribute-control", EntitySheetHelper.onClickAttributeControl.bind(this));
-    html.find(".groups").on("click", ".group-control", EntitySheetHelper.onClickAttributeGroupControl.bind(this));
-    html.find(".attributes").on("click", "a.attribute-roll", EntitySheetHelper.onAttributeRoll.bind(this));
-
-    // Item Controls
-    html.find(".item-control").click(this._onItemControl.bind(this));
-    html.find(".items .rollable").on("click", this._onItemRoll.bind(this));
-
-    // Add draggable for Macro creation
-    html.find(".attributes a.attribute-roll").each((i, a) => {
-      a.setAttribute("draggable", true);
-      a.addEventListener("dragstart", ev => {
-        let dragData = ev.currentTarget.dataset;
-        ev.dataTransfer.setData('text/plain', JSON.stringify(dragData));
-      }, false);
-    });
+  /** @override */
+  static async createDialog(data={}, options={}) {
+    return EntitySheetHelper.createDialog.call(this, data, options);
   }
 
   /* -------------------------------------------- */
 
   /**
-   * Handle click events for Item control buttons within the Actor Sheet
-   * @param event
-   * @private
+   * Is this Actor used as a template for other Actors?
+   * @type {boolean}
    */
-  _onItemControl(event) {
-    event.preventDefault();
+  get isTemplate() {
+    return !!this.getFlag("worldbuilding", "isTemplate");
+  }
 
-    // Obtain event data
-    const button = event.currentTarget;
-    const li = button.closest(".item");
-    const item = this.actor.items.get(li?.dataset.itemId);
+  /* -------------------------------------------- */
+  /*  Roll Data Preparation                       */
+  /* -------------------------------------------- */
 
-    // Handle different actions
-    switch ( button.dataset.action ) {
-      case "create":
-        const cls = getDocumentClass("Item");
-        return cls.create({name: game.i18n.localize("SIMPLE.ItemNew"), type: "item"}, {parent: this.actor});
-      case "edit":
-        return item.sheet.render(true);
-      case "delete":
-        return item.delete();
+  /** @inheritdoc */
+  getRollData() {
+
+    // Copy the actor's system data
+    const data = this.toObject(false).system;
+    const shorthand = game.settings.get("worldbuilding", "macroShorthand");
+    const formulaAttributes = [];
+    const itemAttributes = [];
+
+    // Handle formula attributes when the short syntax is disabled.
+    this._applyShorthand(data, formulaAttributes, shorthand);
+
+    // Map all item data using their slugified names
+    this._applyItems(data, itemAttributes, shorthand);
+
+    // Evaluate formula replacements on items.
+    this._applyItemsFormulaReplacements(data, itemAttributes, shorthand);
+
+    // Evaluate formula attributes after all other attributes have been handled, including items.
+    this._applyFormulaReplacements(data, formulaAttributes, shorthand);
+
+    // Remove the attributes if necessary.
+    if ( !!shorthand ) {
+      delete data.attributes;
+      delete data.attr;
+      delete data.groups;
+    }
+    return data;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Apply shorthand syntax to actor roll data.
+   * @param {Object} data The actor's data object.
+   * @param {Array} formulaAttributes Array of attributes that are derived formulas.
+   * @param {Boolean} shorthand Whether or not the shorthand syntax is used.
+   */
+  _applyShorthand(data, formulaAttributes, shorthand) {
+    // Handle formula attributes when the short syntax is disabled.
+    for ( let [k, v] of Object.entries(data.attributes || {}) ) {
+      // Make an array of formula attributes for later reference.
+      if ( v.dtype === "Formula" ) formulaAttributes.push(k);
+      // Add shortened version of the attributes.
+      if ( !!shorthand ) {
+        if ( !(k in data) ) {
+          // Non-grouped attributes.
+          if ( v.dtype ) {
+            data[k] = v.value;
+          }
+          // Grouped attributes.
+          else {
+            data[k] = {};
+            for ( let [gk, gv] of Object.entries(v) ) {
+              data[k][gk] = gv.value;
+              if ( gv.dtype === "Formula" ) formulaAttributes.push(`${k}.${gk}`);
+            }
+          }
+        }
+      }
     }
   }
 
   /* -------------------------------------------- */
 
   /**
-   * Listen for roll buttons on items.
-   * @param {MouseEvent} event    The originating left click event
+   * Add items to the actor roll data object. Handles regular and shorthand
+   * syntax, and calculates derived formula attributes on the items.
+   * @param {Object} data The actor's data object.
+   * @param {string[]} itemAttributes
+   * @param {Boolean} shorthand Whether or not the shorthand syntax is used.
    */
-  _onItemRoll(event) {
-    let button = $(event.currentTarget);
-    const li = button.parents(".item");
-    const item = this.actor.items.get(li.data("itemId"));
-    let r = new Roll(button.data('roll'), this.actor.getRollData());
-    return r.toMessage({
-      user: game.user.id,
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      flavor: `<h2>${item.name}</h2><h3>${button.text()}</h3>`
-    });
+  _applyItems(data, itemAttributes, shorthand) {
+    // Map all items data using their slugified names
+    data.items = this.items.reduce((obj, item) => {
+      const key = item.name.slugify({strict: true});
+      const itemData = item.toObject(false).system;
+
+      // Add items to shorthand and note which ones are formula attributes.
+      for ( let [k, v] of Object.entries(itemData.attributes) ) {
+        // When building the attribute list, prepend the item name for later use.
+        if ( v.dtype === "Formula" ) itemAttributes.push(`${key}..${k}`);
+        // Add shortened version of the attributes.
+        if ( !!shorthand ) {
+          if ( !(k in itemData) ) {
+            // Non-grouped item attributes.
+            if ( v.dtype ) {
+              itemData[k] = v.value;
+            }
+            // Grouped item attributes.
+            else {
+              if ( !itemData[k] ) itemData[k] = {};
+              for ( let [gk, gv] of Object.entries(v) ) {
+                itemData[k][gk] = gv.value;
+                if ( gv.dtype === "Formula" ) itemAttributes.push(`${key}..${k}.${gk}`);
+              }
+            }
+          }
+        }
+        // Handle non-shorthand version of grouped attributes.
+        else {
+          if ( !v.dtype ) {
+            if ( !itemData[k] ) itemData[k] = {};
+            for ( let [gk, gv] of Object.entries(v) ) {
+              itemData[k][gk] = gv.value;
+              if ( gv.dtype === "Formula" ) itemAttributes.push(`${key}..${k}.${gk}`);
+            }
+          }
+        }
+      }
+
+      // Delete the original attributes key if using the shorthand syntax.
+      if ( !!shorthand ) {
+        delete itemData.attributes;
+      }
+      obj[key] = itemData;
+      return obj;
+    }, {});
+  }
+
+  /* -------------------------------------------- */
+
+  _applyItemsFormulaReplacements(data, itemAttributes, shorthand) {
+    for ( let k of itemAttributes ) {
+      // Get the item name and separate the key.
+      let item = null;
+      let itemKey = k.split('..');
+      item = itemKey[0];
+      k = itemKey[1];
+
+      // Handle group keys.
+      let gk = null;
+      if ( k.includes('.') ) {
+        let attrKey = k.split('.');
+        k = attrKey[0];
+        gk = attrKey[1];
+      }
+
+      let formula = '';
+      if ( !!shorthand ) {
+        // Handle grouped attributes first.
+        if ( data.items[item][k][gk] ) {
+          formula = data.items[item][k][gk].replace('@item.', `@items.${item}.`);
+          data.items[item][k][gk] = Roll.replaceFormulaData(formula, data);
+        }
+        // Handle non-grouped attributes.
+        else if ( data.items[item][k] ) {
+          formula = data.items[item][k].replace('@item.', `@items.${item}.`);
+          data.items[item][k] = Roll.replaceFormulaData(formula, data);
+        }
+      }
+      else {
+        // Handle grouped attributes first.
+        if ( data.items[item]['attributes'][k][gk] ) {
+          formula = data.items[item]['attributes'][k][gk]['value'].replace('@item.', `@items.${item}.attributes.`);
+          data.items[item]['attributes'][k][gk]['value'] = Roll.replaceFormulaData(formula, data);
+        }
+        // Handle non-grouped attributes.
+        else if ( data.items[item]['attributes'][k]['value'] ) {
+          formula = data.items[item]['attributes'][k]['value'].replace('@item.', `@items.${item}.attributes.`);
+          data.items[item]['attributes'][k]['value'] = Roll.replaceFormulaData(formula, data);
+        }
+      }
+    }
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Apply replacements for derived formula attributes.
+   * @param {Object} data The actor's data object.
+   * @param {Array} formulaAttributes Array of attributes that are derived formulas.
+   * @param {Boolean} shorthand Whether or not the shorthand syntax is used.
+   */
+  _applyFormulaReplacements(data, formulaAttributes, shorthand) {
+    // Evaluate formula attributes after all other attributes have been handled, including items.
+    for ( let k of formulaAttributes ) {
+      // Grouped attributes are included as `group.attr`, so we need to split them into new keys.
+      let attr = null;
+      if ( k.includes('.') ) {
+        let attrKey = k.split('.');
+        k = attrKey[0];
+        attr = attrKey[1];
+      }
+      // Non-grouped attributes.
+      if ( data.attributes[k]?.value ) {
+        data.attributes[k].value = Roll.replaceFormulaData(String(data.attributes[k].value), data);
+      }
+      // Grouped attributes.
+      else if ( attr ) {
+        data.attributes[k][attr].value = Roll.replaceFormulaData(String(data.attributes[k][attr].value), data);
+      }
+
+      // Duplicate values to shorthand.
+      if ( !!shorthand ) {
+        // Non-grouped attributes.
+        if ( data.attributes[k]?.value ) {
+          data[k] = data.attributes[k].value;
+        }
+        // Grouped attributes.
+        else {
+          if ( attr ) {
+            // Initialize a group key in case it doesn't exist.
+            if ( !data[k] ) {
+              data[k] = {};
+            }
+            data[k][attr] = data.attributes[k][attr].value;
+          }
+        }
+      }
+    }
   }
 
   /* -------------------------------------------- */
 
   /** @inheritdoc */
-  _getSubmitData(updateData) {
-    let formData = super._getSubmitData(updateData);
-    formData = EntitySheetHelper.updateAttributes(formData, this.object);
-    formData = EntitySheetHelper.updateGroups(formData, this.object);
-    return formData;
+  async modifyTokenAttribute(attribute, value, isDelta = false, isBar = true) {
+    const current = foundry.utils.getProperty(this.system, attribute);
+    if ( !isBar || !isDelta || (current?.dtype !== "Resource") ) {
+      return super.modifyTokenAttribute(attribute, value, isDelta, isBar);
+    }
+    const updates = {[`system.${attribute}.value`]: Math.clamped(current.value + value, current.min, current.max)};
+    const allowed = Hooks.call("modifyTokenAttribute", {attribute, value, isDelta, isBar}, updates);
+    return allowed !== false ? this.update(updates) : this;
   }
 }
