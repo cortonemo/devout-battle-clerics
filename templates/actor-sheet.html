@@ -1,0 +1,68 @@
+<form class="flexcol {{cssClass}}" autocomplete="off">
+
+  <!-- Sheet Header -->
+  <header class="sheet-header">
+    <img class="profile-img" src="{{data.img}}" data-edit="img" title="{{data.name}}" height="100" width="100" />
+    <div class="header-fields">
+      <h1 class="charname">
+        <input name="name" type="text" value="{{data.name}}" placeholder="Nome da Personagem" />
+      </h1>
+
+      <!-- Stats -->
+      <div class="resource">
+        <label>🎇 Divine</label>
+        <input type="text" name="system.divine" value="{{systemData.divine}}" placeholder="Ex: 2d6"/>
+        <button type="button" class="roll-stat" data-stat="divine">🎲</button>
+      </div>
+
+      <div class="resource">
+        <label>🎭 Performance</label>
+        <input type="text" name="system.performance" value="{{systemData.performance}}" placeholder="Ex: 1d6"/>
+        <button type="button" class="roll-stat" data-stat="performance">🎲</button>
+      </div>
+
+      <div class="resource">
+        <label>🔥 Rebellion</label>
+        <input type="text" name="system.rebellion" value="{{systemData.rebellion}}" placeholder="Ex: 1d4"/>
+        <button type="button" class="roll-stat" data-stat="rebellion">🎲</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sheet Tabs -->
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="description">Descrição</a>
+  </nav>
+
+  <!-- Sheet Body -->
+  <section class="sheet-body">
+
+    <!-- Descrição -->
+    <div class="tab description" data-group="primary" data-tab="description">
+      <div class="resource">
+        <label>🎸 Instrument of Faith</label>
+        <input type="text" name="system.instrument" value="{{systemData.instrument}}" placeholder="Ex: Guitarra com runas"/>
+      </div>
+
+      <div class="resource">
+        <label>💫 Divine Style</label>
+        <input type="text" name="system.style" value="{{systemData.style}}" placeholder="Ex: Cathedral Funk"/>
+      </div>
+
+      <div class="resource">
+        <label>⚡ Signature Move</label>
+        <input type="text" name="system.signature" value="{{systemData.signature}}" placeholder="Ex: Sonic Halo"/>
+      </div>
+
+      <div class="resource">
+        <label>🎤 Band Power</label>
+        <input type="text" name="system.bandPower" value="{{systemData.bandPower}}" placeholder="Ex: Smite Solo"/>
+      </div>
+
+      <hr/>
+
+      {{editor biographyHTML target="system.biography" button=true editable=editable engine="prosemirror"}}
+    </div>
+
+  </section>
+</form>
