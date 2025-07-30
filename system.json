@@ -17,4 +17,11 @@
   "license": "MIT",
   "url": "https://github.com/yourname/devout-battle-clerics",
   "manifest": "system.json"
+  "languages": [
+	  {
+		"lang": "pt-PT",
+		"name": "Português (Portugal)",
+		"path": "lang/pt-PT.json"
+	  }
+	]
 }
