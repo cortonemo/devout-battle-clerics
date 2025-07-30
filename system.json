@@ -1,8 +1,8 @@
 {
   "name": "devout-battle-clerics",
   "title": "Devout Battle Clerics",
-  "version": "0.1",
-  "description": "RPG musical clerical baseado em Sexy Battle Wizards",
+  "version": "0.1.0",
+  "description": "RPG musical clerical inspirado em Sexy Battle Wizards",
   "author": "Serelith",
   "minimumCoreVersion": "10",
   "compatibleCoreVersion": "11",
@@ -13,5 +13,8 @@
   "esmodules": [],
   "languages": [],
   "packs": [],
-  "socket": false
+  "socket": false,
+  "license": "MIT",
+  "url": "https://github.com/yourname/devout-battle-clerics",
+  "manifest": "system.json"
 }
