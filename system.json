@@ -1,16 +1,16 @@
 {
   "id": "devout-battle-clerics",
-  "title": "Devout Battle Clerics",
-  "url": "https://github.com/cortonemo/devout-battle-clerics/",
   "version": "0.1.0",
+  "title": "Devout Battle Clerics",  
+  "url": "https://github.com/cortonemo/devout-battle-clerics/",
   "description": "RPG musical clerical inspirado em Sexy Battle Wizards",
+  "license": "LICENSE.txt",
   "authors": [
     {
       "name": "Serelith"
     }
   ],
-  "license": "MIT",
-  "esmodules": ["scripts/devout.js"],
+  "esmodules": ["module/devout.js"],
   "styles": ["styles/devout.css"],
   "packs": [],
   "socket": false,
@@ -28,14 +28,14 @@
   ],
   "compatibility": {
     "minimum": "10",
-    "verified": "11"
+    "verified": "13"
   },
-  "manifest": "https://raw.githubusercontent.com/cortonemo/devout-battle-clerics/master/system.json",
-  "download": "https://github.com/cortonemo/devout-battle-clerics/archive/refs/heads/main.zip",
-  "grid": {
+    "grid": {
     "distance": 5,
     "units": "ft"
   },
-  "primaryTokenAttribute": "system.health",
-  "secondaryTokenAttribute": "system.power"
+  "primaryTokenAttribute": "health",
+  "secondaryTokenAttribute": "power"
+  "manifest": "https://raw.githubusercontent.com/cortonemo/devout-battle-clerics/master/system.json",
+  "download": "https://github.com/cortonemo/devout-battle-clerics/archive/refs/heads/main.zip",
 }
